@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+tensorflow
+numpy
+librosa
+pydub
+scikit-learn
+tqdm

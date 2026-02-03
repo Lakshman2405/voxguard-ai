@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VoxGuard AI - Voice Detection</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    background: #38bdf8;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 20px;
+    background: #020617;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: left;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>🎙 VoxGuard AI</h1>
+
+<input type="file" id="audioFile" accept="audio/*">
+
+<button onclick="analyze()">Analyze Voice</button>
+
+<div class="result" id="resultBox"></div>
+</div>
+
+<script>
+const API_URL = "https://coderlakshman-voxguard-ai.hf.space/api/voice-detection";
+
+function analyze() {
+    const fileInput = document.getElementById("audioFile");
+    const resultBox = document.getElementById("resultBox");
+
+    if (!fileInput.files[0]) {
+        alert("Please upload audio file");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async function () {
+        const base64Audio = reader.result.split(",")[1];
+
+        const payload = {
+            language: "English",
+<<<<<<< HEAD
+            audioFormat: fileInput.files[0].name.split('.').pop(),
+=======
+            audioFormat: "mp3",
+>>>>>>> 3b8bd6b (Initial VoxGuard AI full project)
+            audioBase64: base64Audio
+        };
+
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "Processing...";
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+<<<<<<< HEAD
+=======
+                    "x-api-key": "my_secret_key_123"
+>>>>>>> 3b8bd6b (Initial VoxGuard AI full project)
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            resultBox.innerHTML = `
+                <strong>Status:</strong> ${data.status}<br>
+                <strong>Prediction:</strong> ${data.classification}<br>
+                <strong>Confidence:</strong> ${data.confidenceScore}<br>
+                <strong>Explanation:</strong> ${data.explanation}
+            `;
+        } catch (err) {
+            resultBox.innerHTML = "Error calling API";
+        }
+    };
+
+    reader.readAsDataURL(fileInput.files[0]);
+}
+</script>
+
+</body>
+</html>

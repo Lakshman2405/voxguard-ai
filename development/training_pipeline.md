@@ -45,5 +45,5 @@ This architecture captures both local and global frequency patterns.
 
 ## 5. Model Export
 
-After training, the model was saved in Keras format:
-
+After training, the model was saved in Keras format: **voice_detector_model.keras**
+This file is used directly in deployment.

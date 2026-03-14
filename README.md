@@ -131,7 +131,7 @@ This system helps in:
 - Fraud detection
 - AI content verification
 
-## Hackathon Validation(HCL 
+## Hackathon Validation(HCL Guvi )
 
 The API endpoint successfully passes the India AI Impact Buildathon Endpoint Tester with real-time predictions.
 

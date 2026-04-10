@@ -76,6 +76,12 @@ def audio_to_mel_from_bytes(audio_bytes):
 
 # API ENDPOINT
 
+from fastapi.responses import FileResponse
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("index.html")
+
 @app.post("/api/voice-detection")
 def detect_voice(
     request: VoiceRequest,

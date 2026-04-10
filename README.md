@@ -7,16 +7,7 @@ sdk: docker
 pinned: false
 license: mit
 ---
----
 
-title: Voxguard Ai
-emoji: 👁
-colorFrom: pink
-colorTo: red
-sdk: docker
-pinned: false
-license: mit
-------------
 
 # VoxGuard AI 🎙️
 

@@ -49,25 +49,29 @@ class VoiceRequest(BaseModel):
 
 # AUDIO PREPROCESSING
 
-def audio_to_mel_from_bytes(audio_bytes):
-    # Save temp mp3
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
+def audio_to_mel_from_bytes(audio_bytes, file_ext):
+    # Save temp file with correct extension
+    with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as tmp:
         tmp.write(audio_bytes)
         tmp_path = tmp.name
 
-    # Load with librosa
-    y, sr = librosa.load(tmp_path, sr=SAMPLE_RATE, duration=3.0)
+    try:
+        # Load audio (librosa + ffmpeg handles multiple formats)
+        y, sr = librosa.load(tmp_path, sr=SAMPLE_RATE, duration=3.0)
+    except Exception as e:
+        os.remove(tmp_path)
+        raise HTTPException(status_code=400, detail=f"Unsupported or corrupted audio format: {file_ext}")
 
-
-    # Delete temp file
     os.remove(tmp_path)
 
+    # Generate Mel Spectrogram
     mel = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=N_MELS)
     mel_db = librosa.power_to_db(mel, ref=np.max)
 
+    # Pad / truncate
     if mel_db.shape[1] < MAX_LEN:
         pad_width = MAX_LEN - mel_db.shape[1]
-        mel_db = np.pad(mel_db, ((0,0),(0,pad_width)), mode='constant')
+        mel_db = np.pad(mel_db, ((0, 0), (0, pad_width)), mode='constant')
     else:
         mel_db = mel_db[:, :MAX_LEN]
 
@@ -91,8 +95,10 @@ def detect_voice(
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    if request.audioFormat.lower() != "mp3":
-        raise HTTPException(status_code=400, detail="Only mp3 format supported")
+    SUPPORTED_FORMATS = ["mp3", "wav", "m4a", "ogg", "flac"]
+    
+    if request.audioFormat.lower() not in SUPPORTED_FORMATS:
+        raise HTTPException(status_code=400, detail="Unsupported audio format")
 
     try:
         audio_bytes = base64.b64decode(request.audioBase64)
@@ -100,7 +106,8 @@ def detect_voice(
         raise HTTPException(status_code=400, detail="Invalid Base64 audio")
 
     # Preprocess
-    mel_input = audio_to_mel_from_bytes(audio_bytes)
+    file_ext = request.audioFormat.lower()
+    mel_input = audio_to_mel_from_bytes(audio_bytes, file_ext)
 
     # Predict
     prediction = model.predict(mel_input)[0][0]
